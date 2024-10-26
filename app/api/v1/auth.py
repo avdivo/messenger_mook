@@ -11,12 +11,16 @@ router = APIRouter()  # Создание маршрутизатора
 async def register(username: str, password: str, db: Session = Depends(get_db)):
     """
     Регистрация пользователя
-    :param username:
-    :param password:
+    :param Имя пользователя:
+    :param Пароль:
     :param db:
     :return: идентификатор сессии
     """
-    user = create_user(db, username, password)
+    try:
+        create_user(db, username, password)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
     # Автоматический вход перенаправление на login
     return await login(response=None, username=username, password=password, db=db)
 
@@ -35,7 +39,7 @@ async def login(response: Response, username: str, password: str, db: Session = 
     if not user:
         raise HTTPException(status_code=401, detail="Неверные учетные данные")
 
-    session_id = create_session(user.id)  # Создание сессии
+    session_id = create_session(user)  # Создание сессии
     return {"session_id": session_id}  # Возвращаем идентификатор сессии
 
 

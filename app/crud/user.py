@@ -10,11 +10,16 @@ def create_user(db: Session, username: str, password: str):
     :param password:
     :return:
     """
-    hashed_password = pwd_context.hash(password)
-    db_user = User(username=username, hashed_password=hashed_password)
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
+    db_user = db.query(User).filter(User.username == username).first()
+    if not db_user:
+        hashed_password = pwd_context.hash(password)
+        db_user = User(username=username, hashed_password=hashed_password)
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+    else:
+        raise ValueError("Пользователь с таким именем уже существует")
+
     return db_user
 
 
