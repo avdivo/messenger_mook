@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.crud.user import create_user, authenticate_user
-from app.services.session_manager import create_session, delete_session
+from app.services.session_manager import create_session, delete_session, get_session_user
+from app.services.websocket_manager import manager
 
 router = APIRouter()  # Создание маршрутизатора
 
@@ -26,10 +27,9 @@ async def register(username: str, password: str, db: Session = Depends(get_db)):
 
 
 @router.post("/login")
-async def login(response: Response, username: str, password: str, db: Session = Depends(get_db)):
+async def login(username: str, password: str, db: Session = Depends(get_db)):
     """
     Вход в систему
-    :param response:
     :param username:
     :param password:
     :param db:
@@ -44,14 +44,16 @@ async def login(response: Response, username: str, password: str, db: Session = 
 
 
 @router.post("/logout")
-async def logout(response: Response, request: Request):
+async def logout(session_id: str):
     """
     Выход из системы
-    :param response:
-    :param request:
+    :param session_id:
     :return: сообщение о выходе
     """
-    session_id = request.cookies.get("session_id")
-    if session_id:
-        delete_session(session_id)  # Удаление сессии
+    user = await get_session_user(session_id)
+    if not user:
+        raise HTTPException(status_code=401, detail="Сессия не найдена")
+
+    await manager.disconnect(user)  # Закрытие подключения
+    await delete_session(session_id)  # Удаление сессии
     return {"message": "Вы вышли из системы"}

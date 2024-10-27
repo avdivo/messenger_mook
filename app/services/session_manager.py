@@ -33,11 +33,11 @@ async def get_session_user(session_id: str):
     return None
 
 
-# Удаление сессии
-def delete_session(session_id: str):
+# Удаление сессии session_id
+async def delete_session(session_id: str):
     """
     Удаление сессии
     :param session_id:
     :return:
     """
-    redis_client.delete(session_id)
+    await redis_client.delete(session_id)

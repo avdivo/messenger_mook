@@ -12,7 +12,7 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
         print(f"Пользователь с сессией {session_id} не найден.")
         await websocket.close(code=1008)
         return
-    await manager.connect(user.id, websocket)
+    await manager.connect(user, websocket)
     await manager.broadcast(f"Пользователь {user.username} подключился к чату.")
 
     try:
@@ -21,4 +21,4 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
             await manager.broadcast(f"Пользователь {user.username}: {data}")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        await manager.broadcast(f"Пользователь {user.name} покинул чат.")
+        await manager.broadcast(f"Пользователь {user.username} покинул чат.")
