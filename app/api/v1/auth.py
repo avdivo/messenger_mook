@@ -39,7 +39,7 @@ async def login(response: Response, username: str, password: str, db: Session = 
     if not user:
         raise HTTPException(status_code=401, detail="Неверные учетные данные")
 
-    session_id = create_session(user)  # Создание сессии
+    session_id = await create_session(user)  # Создание сессии
     return {"session_id": session_id}  # Возвращаем идентификатор сессии
 
 
