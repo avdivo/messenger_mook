@@ -1,15 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, Response
-from sqlalchemy.orm import Session
-from app.core.db import get_db
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.config.db import get_db
 from app.crud.user import create_user, authenticate_user
 from app.services.session_manager import create_session, delete_session, get_session_user
-from app.services.websocket_manager import manager
+from app.websocket.websocket_manager import manager
 
 router = APIRouter()  # Создание маршрутизатора
 
 
 @router.post("/register")
-async def register(username: str, password: str, db: Session = Depends(get_db)):
+async def register(username: str, password: str, db: AsyncSession = Depends(get_db)):
     """
     Регистрация пользователя
     :param Имя пользователя:
@@ -18,7 +18,7 @@ async def register(username: str, password: str, db: Session = Depends(get_db)):
     :return: идентификатор сессии
     """
     try:
-        create_user(db, username, password)
+        await create_user(db, username, password)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -27,7 +27,7 @@ async def register(username: str, password: str, db: Session = Depends(get_db)):
 
 
 @router.post("/login")
-async def login(username: str, password: str, db: Session = Depends(get_db)):
+async def login(username: str, password: str, db: AsyncSession = Depends(get_db)):
     """
     Вход в систему
     :param username:
@@ -35,7 +35,7 @@ async def login(username: str, password: str, db: Session = Depends(get_db)):
     :param db:
     :return:
     """
-    user = authenticate_user(db, username, password)
+    user = await authenticate_user(db, username, password)
     if not user:
         raise HTTPException(status_code=401, detail="Неверные учетные данные")
 

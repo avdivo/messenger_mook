@@ -1,7 +1,7 @@
 import redis
 import uuid
 import pickle
-from app.core.config import REDIS_HOST, REDIS_PORT
+from app.config.config import REDIS_HOST, REDIS_PORT
 from app.models.user import User
 
 # Подключение к Redis
@@ -18,6 +18,8 @@ async def create_session(user: User):
     session_id = str(uuid.uuid4())  # Генерация уникального идентификатора сессии
     await redis_client.set(session_id, data_user, ex=1800)  # TTL сессии - 30 минут
     # docker run -d --name redis_container -p 6379:6379 redis
+    # sudo docker start redis_container
+    # sudo docker exec -it redis_container redis-cli
     return session_id
 
 

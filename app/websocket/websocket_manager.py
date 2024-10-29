@@ -32,5 +32,9 @@ class ConnectionManager:
         for connection in self.active_connections.values():
             await connection.send_text(message)
 
+    async def connected_users_id(self):
+        """Получение списка id подключенных пользователей
+        """
+        return self.active_connections.keys()
 
 manager = ConnectionManager()
