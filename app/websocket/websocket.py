@@ -29,7 +29,7 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
 
                 try:
                     # Попытка парсинга сообщения как JSON
-                    message = await json.loads(data)
+                    message = json.loads(data)
 
                     if message["type"] == "message":
                         # Отправка сообщения
