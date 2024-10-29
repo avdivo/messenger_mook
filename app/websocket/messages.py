@@ -2,6 +2,7 @@ import json
 from app.crud.user import get_all_users
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.websocket.websocket_manager import manager
+from app.models.user import User
 
 
 async def type_update(db: AsyncSession):
@@ -36,4 +37,23 @@ async def type_update(db: AsyncSession):
             users_list_offline.append(item)
     users_list_online.extend(users_list_offline)
 
-    return json.dumps({"type": "update", "list": users_list_online})
+    # Отправка сообщения всем пользователям
+    await manager.broadcast(json.dumps({"type": "update", "list": users_list_online}))
+
+
+async def type_message(from_user: User, to_user: User, message: str):
+    """Подготовка и отправление сообщения.
+    {
+        "type": "message",
+        "from": "username",
+        "message": "text"
+    }
+    :param from_user: отправитель
+    :param to_user: получатель
+    :param message: текст сообщения
+    """
+    message = json.dumps({"type": "message", "from": from_user.username, "message": message})
+    if await manager.is_online(to_user):
+        await manager.send_personal_message(message, to_user)  # Отправка сообщения
+    else:
+        await manager.send_personal_message("Пользователь не в сети", from_user)

@@ -1,8 +1,10 @@
+import json
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from app.websocket.websocket_manager import manager
 from app.services.session_manager import get_session_user
 from app.config.db import get_db
-from app.websocket.messages import type_update
+from app.websocket.messages import type_update, type_message
+from app.crud.user import get_user_by_id
 
 router = APIRouter()
 
@@ -18,14 +20,32 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
     # Создание сессии через get_db() для каждого подключения
     async for db in get_db():
 
-        await manager.connect(user, websocket)
-        print(await type_update(db))
-        await manager.broadcast(await type_update(db))
+        await manager.connect(user, websocket)  # Подключение пользователя
+        await type_update(db)  # Отправка сообщения всем пользователям
 
         try:
             while True:
-                data = await websocket.receive_text()
-                await manager.broadcast(f"Пользователь {user.username}: {data}")
+                data = await websocket.receive_text()  # Получение сообщения от пользователя
+
+                try:
+                    # Попытка парсинга сообщения как JSON
+                    message = await json.loads(data)
+
+                    if message["type"] == "message":
+                        # Отправка сообщения
+                        # Принимаемое, пример: {"type": "message", "to": "2" , "message": "Это тебе сообщение!"}
+                        to_user = await get_user_by_id(db, message["to"])  # Получение пользователя по id
+                        if not to_user:
+                            await manager.send_personal_message("Пользователь не найден", user)
+                            continue
+                        # Отправка сообщения
+                        await type_message(user, to_user, message["message"])
+                        continue
+
+                except json.JSONDecodeError:
+                    # Обработка ошибки в случае, если сообщение не является JSON
+                    await websocket.send_text("Ошибка: Неверный формат сообщения")
+
         except WebSocketDisconnect:
             manager.disconnect(websocket)
             await manager.broadcast(f"Пользователь {user.username} покинул чат.")

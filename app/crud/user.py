@@ -49,3 +49,15 @@ async def get_all_users(db: AsyncSession):
     result = await db.execute(select(User))
     users = result.scalars().all()  # Получаем все результаты
     return users
+
+
+async def get_user_by_id(db: AsyncSession, user_id: int):
+    """
+    Получение пользователя по идентификатору
+    :param db:
+    :param user_id:
+    :return: пользователь
+    """
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalars().first()
+    return user
