@@ -4,3 +4,4 @@ passlib==1.7.4
 redis==5.2.0
 SQLAlchemy==2.0.36
 websockets==13.1
+celery==5.4.0

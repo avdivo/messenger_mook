@@ -3,6 +3,7 @@ from app.crud.user import get_all_users
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.websocket.websocket_manager import manager
 from app.models.user import User
+from app.config.config import redis_client
 
 
 async def type_update(db: AsyncSession):
@@ -57,3 +58,5 @@ async def type_message(from_user: User, to_user: User, message: str):
         await manager.send_personal_message(message, to_user)  # Отправка сообщения
     else:
         await manager.send_personal_message("Пользователь не в сети", from_user)
+        # await manager.buffer_message(to_user, message)
+        await redis_client.rpush(f"messages:{to_user.id}", message)
