@@ -9,6 +9,7 @@ def send_buffered_messages(user_id: str):
     """Отправка не отправленных сообщений для пользователя через WebSocket
     :param user: пользователь
     """
+    print(f"=======================messages:{user_id}")
     messages = redis_client.lrange(f"messages:{user_id}", 0, -1)
     redis_client.delete(f"messages:{user_id}")  # Очищаем буфер после отправки
 

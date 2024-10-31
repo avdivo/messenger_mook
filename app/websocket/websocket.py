@@ -5,7 +5,7 @@ from app.services.session_manager import get_session_user
 from app.config.db import get_db
 from app.websocket.messages import type_update, type_message
 from app.crud.user import get_user_by_id
-from app.celery.worker_websocket import send_buffered_messages
+from app.websocket.buffered_messages import send_buffered_messages
 
 router = APIRouter()
 
@@ -24,8 +24,8 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
         await manager.connect(user, websocket)  # Подключение пользователя
         await type_update(db)  # Отправка сообщения всем пользователям
 
-        # Сигнал для отправки буферизированных сообщений через Celery
-        send_buffered_messages.delay(user.id)
+        # Отправки буферизированных сообщений пользователю
+        await send_buffered_messages(user)
 
         try:
             while True:
@@ -51,5 +51,5 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
                     await websocket.send_text("Ошибка: Неверный формат сообщения")
 
         except WebSocketDisconnect:
-            manager.disconnect(websocket)
+            await manager.disconnect(user)
             await manager.broadcast(f"Пользователь {user.username} покинул чат.")

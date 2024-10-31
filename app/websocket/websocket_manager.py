@@ -21,7 +21,10 @@ class ConnectionManager:
         :param user: пользователь
         """
         if user.id in self.active_connections:
-            await self.active_connections[user.id].close(code=1008)  # Разорвать соединение
+            try:
+                await self.active_connections[user.id].close(code=1008)  # Разорвать соединение
+            except RuntimeError as e:
+                pass
             self.active_connections.pop(user.id)
 
     async def send_personal_message(self, message: str, to: User):
