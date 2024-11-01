@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.orm import load_only
 from app.models.user import User, pwd_context
 
 
@@ -58,6 +59,6 @@ async def get_user_by_id(db: AsyncSession, user_id: int):
     :param user_id:
     :return: пользователь
     """
-    result = await db.execute(select(User).where(User.id == user_id))
-    user = result.scalars().first()
-    return user
+
+    # Жадная загрузка данных
+    return await db.get(User, user_id)

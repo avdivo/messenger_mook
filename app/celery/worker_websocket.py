@@ -1,7 +1,7 @@
 from app.config.config import celery_app
 from app.config.config import redis_client
 from app.websocket.websocket_manager import manager
-from app.crud.user import get_user_by_id
+from app.user.crud import get_user_by_id
 
 
 @celery_app.task

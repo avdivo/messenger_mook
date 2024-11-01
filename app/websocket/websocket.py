@@ -1,10 +1,10 @@
 import json
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from app.websocket.websocket_manager import manager
-from app.services.session_manager import get_session_user
+from app.session.session_manager import get_session_user
 from app.config.db import get_db
 from app.websocket.messages import type_update, type_message
-from app.crud.user import get_user_by_id
+from app.user.crud import get_user_by_id
 from app.websocket.buffered_messages import send_buffered_messages
 
 router = APIRouter()
@@ -43,7 +43,7 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
                             await manager.send_personal_message("Пользователь не найден", user)
                             continue
                         # Отправка сообщения
-                        await type_message(user, to_user, message["message"])
+                        await type_message(db, user, to_user, message["message"])
                         continue
 
                 except json.JSONDecodeError:

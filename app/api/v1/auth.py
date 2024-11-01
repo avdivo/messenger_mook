@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.config.db import get_db
-from app.crud.user import create_user, authenticate_user
-from app.services.session_manager import create_session, delete_session, get_session_user
+from app.user.crud import create_user, authenticate_user
+from app.session.session_manager import create_session, delete_session, get_session_user
 from app.websocket.websocket_manager import manager
 
 router = APIRouter()  # Создание маршрутизатора

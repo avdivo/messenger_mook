@@ -1,5 +1,6 @@
 import json
-from app.crud.user import get_all_users
+from app.history.crud import save_message
+from app.user.crud import get_all_users
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.websocket.websocket_manager import manager
 from app.models.user import User
@@ -42,20 +43,32 @@ async def type_update(db: AsyncSession):
     await manager.broadcast(json.dumps({"type": "update", "list": users_list_online}))
 
 
-async def type_message(from_user: User, to_user: User, message: str):
-    """Подготовка и отправление сообщения.
+async def type_message(db: AsyncSession, from_user: User, to_user: User, message: str):
+    """Подготовка, отправление и сохранение сообщения.
     {
         "type": "message",
         "from": "username",
         "message": "text"
     }
+    :param db: сессия базы данных
     :param from_user: отправитель
     :param to_user: получатель
     :param message: текст сообщения
     """
+    # Сохранение сообщения в истории
+    await save_message(db, from_user, to_user, message)
+
+    # Формирование сообщения
     message = json.dumps({"type": "message", "from": from_user.username, "message": message})
+
+    print('------------------------------------')
+    print(to_user.id)
+
+    # Отправка сообщения получателю
     if await manager.is_online(to_user):
         await manager.send_personal_message(message, to_user)  # Отправка сообщения
     else:
         await manager.send_personal_message("Пользователь не в сети", from_user)
         await save_buffered_message(to_user, message)  # Сохранение сообщения в буфер
+
+    await db.commit()
