@@ -23,7 +23,7 @@ async def register(username: str, password: str, db: AsyncSession = Depends(get_
         raise HTTPException(status_code=400, detail=str(e))
 
     # Автоматический вход перенаправление на login
-    return await login(response=None, username=username, password=password, db=db)
+    return await login(username=username, password=password, db=db)
 
 
 @router.post("/login")

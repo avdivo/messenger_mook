@@ -12,7 +12,7 @@ app.include_router(websocket.router, prefix="/ws")
 
 
 # Создание всех таблиц при запуске приложения (если они не существуют)
-@app.on_event("startup")
-async def startup():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+# @app.on_event("startup")
+# async def startup():
+#     async with engine.begin() as conn:
+#         await conn.run_sync(Base.metadata.create_all)
