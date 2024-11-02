@@ -14,6 +14,8 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)  # Идентификатор
     username = Column(String, unique=True, index=True)  # Имя пользователя
     hashed_password = Column(String)  # Хешированный пароль
+    tg_id = Column(String(36), unique=True, index=True, nullable=True)  # id сессии или id пользователя Телеграм
+
 
     def verify_password(self, password: str):
         """

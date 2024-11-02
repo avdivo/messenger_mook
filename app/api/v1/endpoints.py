@@ -1,6 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+import asyncio
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+from aiogram.types import Update
 from app.config.db import get_db
+from app.config.config import WEBHOOK_URL
 from app.user.crud import create_user, authenticate_user
 from app.session.session_manager import create_session, delete_session, get_session_user
 from app.websocket.websocket_manager import manager
@@ -57,3 +61,13 @@ async def logout(session_id: str):
     await manager.disconnect(user)  # Закрытие подключения
     await delete_session(session_id)  # Удаление сессии
     return {"message": "Вы вышли из системы"}
+
+# Обработка вебхуков
+@router.post(WEBHOOK_URL)
+async def webhook_handler(request: Request):
+    """Обработка запросов. Передача боту.
+    """
+    update_data = await request.json()  # Получение данных из запроса
+    update = Update(**update_data)  # Создание объекта обновления
+    asyncio.create_task(dp.feed_update(bot, update))  # Передача обновления боту
+    return JSONResponse(content={})  # Возвращение пустого ответа

@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api.v1 import auth
+from app.api.v1 import endpoints
 from app.websocket import websocket
 from app.config.db import engine
 from app.models.user import Base  # Импортируем Base из модели пользователя
@@ -7,7 +7,7 @@ from app.models.user import Base  # Импортируем Base из модел�
 app = FastAPI()
 
 # Подключение маршрутов авторизации и WebSocket
-app.include_router(auth.router, prefix="/api/v1")
+app.include_router(endpoints.router, prefix="/api/v1")
 app.include_router(websocket.router, prefix="/ws")
 
 
