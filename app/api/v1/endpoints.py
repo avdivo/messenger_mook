@@ -73,7 +73,6 @@ async def logout(session_id: str):
 async def webhook_handler(request: Request, db: AsyncSession = Depends(get_db)):
     """Обработка запросов. Передача боту.
     """
-    print('-------------------------------------------------------------')
     update_data = await request.json()  # Получение данных из запроса
     update = Update(**update_data)  # Создание объекта обновления
     asyncio.create_task(dp.feed_update(bot, update, db=db))  # Передача обновления боту

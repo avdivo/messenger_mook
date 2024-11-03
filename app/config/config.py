@@ -11,7 +11,9 @@ DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./test.db")
 celery_app = Celery(
     "tasks",
     broker="redis://localhost:6379/0",
-    backend="redis://localhost:6379/0"
+    backend="redis://localhost:6379/0",
+    include=['app.celery.worker_send_message'],
+    broker_connection_retry_on_startup=True,
 )
 
 # Настройки Redis
