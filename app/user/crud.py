@@ -1,6 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.orm import load_only
 from app.models.user import User, pwd_context
 
 
@@ -62,3 +61,16 @@ async def get_user_by_id(db: AsyncSession, user_id: int):
 
     # Жадная загрузка данных
     return await db.get(User, user_id)
+
+async def change_tg_id(db: AsyncSession, user_id: int, new_tg_id: int):
+    """
+    Изменение tg_id пользователя
+    :param db:  Сессия базы данных
+    :param user_id:  Идентификатор пользователя
+    :param new_tg_id:  Новый tg_id (id пользователя в Telegram)
+    :return user:  Объект пользователя
+    """
+    user = await get_user_by_id(db, user_id)
+    user.tg_id = new_tg_id
+    await db.commit()
+    return user

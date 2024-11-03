@@ -21,7 +21,7 @@ async def create_session(user: User):
 
 async def get_session_user(session_id: str):
     """
-    Получение ID пользователя по session_id
+    Получение object пользователя по session_id
     :param session_id:
     :return: user (object)
     """

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, BigInteger
 from passlib.context import CryptContext
 from app.config.db import Base
 
@@ -14,8 +14,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)  # Идентификатор
     username = Column(String, unique=True, index=True)  # Имя пользователя
     hashed_password = Column(String)  # Хешированный пароль
-    tg_id = Column(String(36), unique=True, index=True, nullable=True)  # id сессии или id пользователя Телеграм
-
+    tg_id = Column(BigInteger, unique=True, index=True, nullable=True, default=0)  # id пользователя Телеграм
 
     def verify_password(self, password: str):
         """
