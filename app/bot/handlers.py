@@ -13,7 +13,10 @@ async def start_command(message: types.Message, db: AsyncSession):
 
     :return: None
     """
-    token = message.get_args()  # Извлекаем токен из команды /start
+    text = message.text
+    if " " not in text:
+        await message.reply("Для регистрации необходим токен. Перейдите по представленной вам ссылке.")
+    token = text.split(" ", 1)[1]  # Извлекаем токен после пробела
     user = await get_session_user(token)  # Получаем пользователя по токену (сессии)
     if not user:
         await message.reply("Неверный или истекший токен. Пожалуйста, попробуйте снова.")

@@ -48,7 +48,7 @@ async def login(username: str, password: str, db: AsyncSession = Depends(get_db)
     # Если id пользователя в Telegram неизвестен, передаем url для старта бота с идентификатором сессии
     # по которой можно будет идентифицировать пользователя.
     # В поле user.tg_id должен быть id сессии или id пользователя в Telegram (он меньше 20 символов).
-    url = f'https://t.me/{BOT_USERNAME}?start=session_id' if not user.tg_id else None
+    url = f'https://t.me/{BOT_USERNAME}?start={session_id}' if not user.tg_id else None
     return {"session_id": session_id, "url_bot_start": url}  # Возвращаем идентификатор сессии
 
 
@@ -69,10 +69,11 @@ async def logout(session_id: str):
 
 
 # Обработка вебхуков
-@router.post(WEBHOOK_URL)
+@router.post('/webhook')
 async def webhook_handler(request: Request, db: AsyncSession = Depends(get_db)):
     """Обработка запросов. Передача боту.
     """
+    print('-------------------------------------------------------------')
     update_data = await request.json()  # Получение данных из запроса
     update = Update(**update_data)  # Создание объекта обновления
     asyncio.create_task(dp.feed_update(bot, update, db=db))  # Передача обновления боту
